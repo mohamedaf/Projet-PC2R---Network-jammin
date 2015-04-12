@@ -37,6 +37,19 @@ public class EchoClient extends Thread {
 		outchan = new DataOutputStream(s.getOutputStream());
 		socket = s;
 		synchronized (server) {
+		    /* On verifie si la session est pleine */
+		    if (server.getCapacity() == server.getNbConnectedClients()) {
+			/**
+			 * Si c'est le cas on previent le client, fermons la
+			 * socket proprement puis passons a l'iteration suivant
+			 * et donc a l'attente d'une nouvelle connexion
+			 */
+			Commandes.full_session(outchan);
+			server.setNbWaitingSocks(server.getNbWaitingSocks() - 1);
+			socket.close();
+			continue;
+		    }
+
 		    server.newConnect(outchan);
 		}
 		/* Recuperer le nom du client */
@@ -53,8 +66,10 @@ public class EchoClient extends Thread {
 			break;
 		    }
 		    synchronized (server) {
-			server.AnswerClient(command, outchan, userName);
-			server.writeAllButMe(command + "\n", outchan, userName);
+			if (!server.AnswerClient(command, inchan, outchan,
+				userName))
+			    server.writeAllButMe(command + "\n", outchan,
+				    userName);
 		    }
 		}
 		synchronized (server) {
