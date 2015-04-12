@@ -16,7 +16,7 @@ public class EchoServer {
     private Vector<EchoClient> clients;
     private Vector<Socket> sockets;
     private Vector<DataOutputStream> streams;
-    private ServerSocket serv;
+    private ServerSocket serv, serv2;
     private Socket client;
     private int capacity, nbConnectedClients, nbWaitingSocks, port;
     private String style, tempo;
@@ -66,6 +66,11 @@ public class EchoServer {
 	System.out.println("   * " + nbConnectedClients + " connected.");
 	System.out.println("   * " + nbWaitingSocks + " waiting.");
 	Commandes.exited(this, userName, out);
+	streams.remove(out);
+    }
+
+    public void clientJamLeft(DataOutputStream out) {
+	System.out.println(" Client Jam left.");
 	streams.remove(out);
     }
 
@@ -146,8 +151,23 @@ public class EchoServer {
 	    Commandes.audio_port(out);
 
 	    /**
-	     * TO DO : Etablir le canal audio
+	     * Etablir le canal audio
 	     */
+
+	    try {
+		serv2 = new ServerSocket();
+		serv2.setReuseAddress(true);
+		serv2.bind(new InetSocketAddress(port));
+		client = serv2.accept();
+		System.out.println("New connexion at Jammin server.");
+		synchronized (this) {
+		    sockets.add(client);
+		    nbWaitingSocks++;
+		    this.notify();
+		}
+	    } catch (Throwable t) {
+		t.printStackTrace(System.err);
+	    }
 
 	    Commandes.audio_ok(out);
 
@@ -210,6 +230,14 @@ public class EchoServer {
 
     public void setServ(ServerSocket serv) {
 	this.serv = serv;
+    }
+
+    public ServerSocket getServ2() {
+	return serv2;
+    }
+
+    public void setServ2(ServerSocket serv2) {
+	this.serv2 = serv2;
     }
 
     public Socket getClient() {
