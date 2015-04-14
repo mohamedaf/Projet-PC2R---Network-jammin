@@ -4,7 +4,11 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 /**
- * Messages du serveur
+ * 
+ * @author Mohamed AMIN
+ * 
+ *         La classe contenant les differents messages correspondants au
+ *         protocole que le serveur peux envoyer a un client
  */
 
 public class Commandes {

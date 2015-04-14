@@ -12,6 +12,12 @@ import java.util.Vector;
  * Idee essayer d'ameliorer en liberant la place d'un client apres deconnexion
  */
 
+/**
+ * 
+ * @author Mohamed AMIN
+ * 
+ *         La classe representant le serveur
+ */
 public class EchoServer {
     private Vector<EchoClient> clients;
     private Vector<Socket> sockets;
@@ -29,6 +35,8 @@ public class EchoServer {
 	this.streams = new Vector<DataOutputStream>();
 	this.style = null;
 	this.tempo = null;
+	this.serv = null;
+	this.serv2 = null;
 
 	for (int i = 0; i < capacity; i++) {
 	    EchoClient tmpEcho = new EchoClient(this);
@@ -186,6 +194,10 @@ public class EchoServer {
 	    serv = new ServerSocket();
 	    serv.setReuseAddress(true);
 	    serv.bind(new InetSocketAddress(port));
+	    DeconnexionServer ds = new DeconnexionServer(this);
+	    ds.start();
+	    System.out.println("Please tape \"exit\" to quit proprely");
+
 	    while (true) {
 		client = serv.accept();
 		System.out.println("New connexion at server.");

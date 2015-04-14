@@ -6,6 +6,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 
+/**
+ * 
+ * @author Mohamed AMIN
+ * 
+ *         La classe gerant l'interaction du serveur avec un client pour la
+ *         partie musicale
+ */
 public class EchoClientJam extends Thread {
     private BufferedReader inchan;
     private DataOutputStream outchan;
