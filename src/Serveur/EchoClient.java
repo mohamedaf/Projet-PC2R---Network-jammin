@@ -68,7 +68,7 @@ public class EchoClient extends Thread {
 		while (true) {
 		    String command = inchan.readLine();
 		    if (command == null || command.equals("")
-			    || s.equals("EXIT/" + userName + "/")) {
+			    || command.equals("EXIT/" + userName + "/")) {
 			System.out.println(" Fin de connexion.");
 			break;
 		    }
