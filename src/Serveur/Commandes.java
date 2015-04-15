@@ -23,7 +23,8 @@ public class Commandes {
      */
     public static void welcome(DataOutputStream out, String userName) {
 	try {
-	    out.writeChars("WELCOME/" + userName + "/\n");
+	    out.writeBytes("WELCOME/" + userName + "/\n");
+	    out.flush();
 	} catch (IOException e) {
 	    e.printStackTrace(System.err);
 	}
@@ -35,7 +36,8 @@ public class Commandes {
      */
     public static void audio_port(DataOutputStream out) {
 	try {
-	    out.writeChars("AUDIO_PORT/2014/\n");
+	    out.writeBytes("AUDIO_PORT/2014/\n");
+	    out.flush();
 	} catch (IOException e) {
 	    e.printStackTrace(System.err);
 	}
@@ -46,7 +48,8 @@ public class Commandes {
      */
     public static void audio_ok(DataOutputStream out) {
 	try {
-	    out.writeChars("AUDIO_OK/2014/\n");
+	    out.writeBytes("AUDIO_OK/2014/\n");
+	    out.flush();
 	} catch (IOException e) {
 	    e.printStackTrace(System.err);
 	}
@@ -77,7 +80,8 @@ public class Commandes {
      */
     public static void empty_session(DataOutputStream out) {
 	try {
-	    out.writeChars("EMPTY_SESSION\n");
+	    out.writeBytes("EMPTY_SESSION\n");
+	    out.flush();
 	} catch (IOException e) {
 	    e.printStackTrace(System.err);
 	}
@@ -89,8 +93,9 @@ public class Commandes {
     public static void current_session(DataOutputStream out, String style,
 	    String tempo, int nbMus) {
 	try {
-	    out.writeChars("CURRENT_SESSION/" + style + "/" + tempo + "/\n"
+	    out.writeBytes("CURRENT_SESSION/" + style + "/" + tempo + "/\n"
 		    + nbMus + "/");
+	    out.flush();
 	} catch (IOException e) {
 	    e.printStackTrace(System.err);
 	}
@@ -101,7 +106,8 @@ public class Commandes {
      */
     public static void ack_opts(DataOutputStream out) {
 	try {
-	    out.writeChars("ACK_OPTS\n");
+	    out.writeBytes("ACK_OPTS\n");
+	    out.flush();
 	} catch (IOException e) {
 	    e.printStackTrace(System.err);
 	}
@@ -112,7 +118,8 @@ public class Commandes {
      */
     public static void full_session(DataOutputStream out) {
 	try {
-	    out.writeChars("FULL_SESSION\n");
+	    out.writeBytes("FULL_SESSION\n");
+	    out.flush();
 	} catch (IOException e) {
 	    e.printStackTrace(System.err);
 	}
@@ -127,7 +134,8 @@ public class Commandes {
      */
     public static void audio_okk(DataOutputStream out) {
 	try {
-	    out.writeChars("AUDIO_OK\n");
+	    out.writeBytes("AUDIO_OK\n");
+	    out.flush();
 	} catch (IOException e) {
 	    e.printStackTrace(System.err);
 	}
@@ -138,7 +146,8 @@ public class Commandes {
      */
     public static void audio_ko(DataOutputStream out) {
 	try {
-	    out.writeChars("AUDIO_KO\n");
+	    out.writeBytes("AUDIO_KO\n");
+	    out.flush();
 	} catch (IOException e) {
 	    e.printStackTrace(System.err);
 	}
@@ -149,7 +158,8 @@ public class Commandes {
      */
     public static void audio_mix(DataOutputStream out, String buffer) {
 	try {
-	    out.writeChars(buffer);
+	    out.writeBytes(buffer);
+	    out.flush();
 	} catch (IOException e) {
 	    e.printStackTrace(System.err);
 	}

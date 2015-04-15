@@ -62,7 +62,8 @@ public class EchoServer {
 	System.out.println("   * " + nbWaitingSocks + " waiting.");
 	streams.add(out);
 	try {
-	    out.writeChars(" Please give you name :\n");
+	    out.writeBytes(" Please give you name :\n");
+	    out.flush();
 	} catch (IOException e) {
 	    e.printStackTrace(System.err);
 	}
@@ -85,8 +86,10 @@ public class EchoServer {
     public void writeAllButMe(String s, DataOutputStream out) {
 	try {
 	    for (int i = 0; i < nbConnectedClients; i++) {
-		if (streams.elementAt(i) != out)
-		    streams.elementAt(i).writeChars(s + "\n");
+		if (streams.elementAt(i) != out) {
+		    streams.elementAt(i).writeBytes(s + "\n");
+		    streams.elementAt(i).flush();
+		}
 	    }
 	} catch (IOException e) {
 	    e.printStackTrace(System.err);
@@ -97,8 +100,9 @@ public class EchoServer {
 	try {
 	    for (int i = 0; i < nbConnectedClients; i++) {
 		if (streams.elementAt(i) != out) {
-		    streams.elementAt(i).writeChars("\n" + userName + " :\n");
-		    streams.elementAt(i).writeChars(s + "\n");
+		    streams.elementAt(i).writeBytes(userName + " :\n");
+		    streams.elementAt(i).writeBytes(s + "\n");
+		    streams.elementAt(i).flush();
 		}
 	    }
 	} catch (IOException e) {
@@ -129,8 +133,9 @@ public class EchoServer {
 		    boolean repeter = true;
 
 		    while (repeter) {
-			out.writeChars("\nVeuillez indiquer le style "
+			out.writeBytes("\nVeuillez indiquer le style "
 				+ "et le tempo voulu\n");
+			out.flush();
 			answer = in.readLine();
 			tab = answer.split("/");
 
