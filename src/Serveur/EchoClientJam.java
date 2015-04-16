@@ -1,9 +1,8 @@
 package Serveur;
 
-import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.Socket;
 
 /**
@@ -14,7 +13,7 @@ import java.net.Socket;
  *         partie musicale
  */
 public class EchoClientJam extends Thread {
-    private BufferedReader inchan;
+    private DataInputStream inchan;
     private DataOutputStream outchan;
     private EchoServer server;
     private Socket socket;
@@ -38,8 +37,7 @@ public class EchoClientJam extends Thread {
 		s = server.removeFirstSocket();
 	    }
 	    try {
-		inchan = new BufferedReader(new InputStreamReader(
-			s.getInputStream()));
+		inchan = new DataInputStream(s.getInputStream());
 		outchan = new DataOutputStream(s.getOutputStream());
 		socket = s;
 		synchronized (server) {

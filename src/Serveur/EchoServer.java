@@ -115,7 +115,7 @@ public class EchoServer {
      * protocole
      */
     public boolean AnswerClient(String s, BufferedReader in,
-	    DataOutputStream out, String userName) {
+	    DataOutputStream out, String userName, EchoClient cl) {
 	if (s.equals("CONNECT/" + userName + "/")) {
 	    Commandes.welcome(out, userName);
 	    Commandes.connected(this, userName, out);
@@ -137,6 +137,13 @@ public class EchoServer {
 				+ "et le tempo voulu\n");
 			out.flush();
 			answer = in.readLine();
+
+			if (answer == null
+				|| answer.equals("EXIT/" + userName + "/")) {
+			    cl.closeSocket();
+			    return true;
+			}
+
 			tab = answer.split("/");
 
 			if (tab[0].equals("SET_OPTIONS") && (tab.length == 3)) {

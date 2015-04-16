@@ -19,6 +19,7 @@ public class EchoClient extends Thread {
     private EchoServer server;
     private Socket socket;
     private String userName;
+    private boolean connecte;
 
     public EchoClient(EchoServer s) {
 	server = s;
@@ -58,6 +59,7 @@ public class EchoClient extends Thread {
 		    }
 
 		    server.newConnect(outchan);
+		    connecte = true;
 		}
 		/* Recuperer le nom du client */
 		userName = inchan.readLine();
@@ -65,7 +67,7 @@ public class EchoClient extends Thread {
 		    server.writeAllButMe("*** New user on chat ***\n"
 			    + "*** User name : " + userName + " ***\n", outchan);
 		}
-		while (true) {
+		while (true && connecte) {
 		    String command = inchan.readLine();
 		    if (command == null || command.equals("")
 			    || command.equals("EXIT/" + userName + "/")) {
@@ -74,7 +76,7 @@ public class EchoClient extends Thread {
 		    }
 		    synchronized (server) {
 			if (!server.AnswerClient(command, inchan, outchan,
-				userName))
+				userName, this))
 			    server.writeAllButMe(command + "\n", outchan,
 				    userName);
 		    }
@@ -88,6 +90,10 @@ public class EchoClient extends Thread {
 		System.exit(1);
 	    }
 	}
+    }
+
+    public void closeSocket() {
+	connecte = false;
     }
 
     public String getUserName() {
