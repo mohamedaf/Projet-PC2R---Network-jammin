@@ -1,12 +1,14 @@
-package Serveur;
+package serveur;
 
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Vector;
+
+import client.ClientTest;
 
 /**
  * Idee essayer d'ameliorer en liberant la place d'un client apres deconnexion
@@ -21,7 +23,7 @@ import java.util.Vector;
 public class EchoServer {
     private Vector<EchoClient> clients;
     private Vector<Socket> sockets;
-    private Vector<DataOutputStream> streams;
+    private Vector<PrintWriter> streams;
     private ServerSocket serv, serv2;
     private Socket client;
     private int capacity, nbConnectedClients, nbWaitingSocks, port;
@@ -32,7 +34,7 @@ public class EchoServer {
 	this.port = port;
 	this.clients = new Vector<EchoClient>(capacity);
 	this.sockets = new Vector<Socket>();
-	this.streams = new Vector<DataOutputStream>();
+	this.streams = new Vector<PrintWriter>();
 	this.style = null;
 	this.tempo = null;
 	this.serv = null;
@@ -46,30 +48,36 @@ public class EchoServer {
 
 	nbConnectedClients = 0;
 	nbWaitingSocks = 0;
+
+	/* Socket audio */
+	try {
+	    this.serv2 = new ServerSocket();
+	    this.serv2.setReuseAddress(true);
+	    this.serv2.bind(new InetSocketAddress(2014));
+	} catch (IOException e) {
+	    e.printStackTrace(System.err);
+	}
     }
 
     public Socket removeFirstSocket() {
+	System.out.println("size = " + sockets.size());
 	Socket ret = sockets.get(0);
 	sockets.removeElementAt(0);
 	return ret;
     }
 
-    public void newConnect(DataOutputStream out) {
+    public void newConnect(PrintWriter out) {
 	nbConnectedClients++;
 	nbWaitingSocks--;
 	System.out.println(" Thread handled connection.");
 	System.out.println("   * " + nbConnectedClients + " connected.");
 	System.out.println("   * " + nbWaitingSocks + " waiting.");
 	streams.add(out);
-	try {
-	    out.writeBytes(" Please give you name :\n");
-	    out.flush();
-	} catch (IOException e) {
-	    e.printStackTrace(System.err);
-	}
+	out.println(" Please give you name :");
+	out.flush();
     }
 
-    public void clientLeft(DataOutputStream out, String userName) {
+    public void clientLeft(PrintWriter out, String userName) {
 	nbConnectedClients--;
 	System.out.println(" Client left.");
 	System.out.println("   * " + nbConnectedClients + " connected.");
@@ -78,35 +86,27 @@ public class EchoServer {
 	streams.remove(out);
     }
 
-    public void clientJamLeft(DataOutputStream out) {
+    public void clientJamLeft(PrintWriter out) {
 	System.out.println(" Client Jam left.");
 	streams.remove(out);
     }
 
-    public void writeAllButMe(String s, DataOutputStream out) {
-	try {
-	    for (int i = 0; i < nbConnectedClients; i++) {
-		if (streams.elementAt(i) != out) {
-		    streams.elementAt(i).writeBytes(s + "\n");
-		    streams.elementAt(i).flush();
-		}
+    public void writeAllButMe(String s, PrintWriter out) {
+	for (int i = 0; i < nbConnectedClients; i++) {
+	    if (streams.elementAt(i) != out) {
+		streams.elementAt(i).println(s);
+		streams.elementAt(i).flush();
 	    }
-	} catch (IOException e) {
-	    e.printStackTrace(System.err);
 	}
     }
 
-    public void writeAllButMe(String s, DataOutputStream out, String userName) {
-	try {
-	    for (int i = 0; i < nbConnectedClients; i++) {
-		if (streams.elementAt(i) != out) {
-		    streams.elementAt(i).writeBytes(userName + " :\n");
-		    streams.elementAt(i).writeBytes(s + "\n");
-		    streams.elementAt(i).flush();
-		}
+    public void writeAllButMe(String s, PrintWriter out, String userName) {
+	for (int i = 0; i < nbConnectedClients; i++) {
+	    if (streams.elementAt(i) != out) {
+		streams.elementAt(i).println("\n" + userName + " :");
+		streams.elementAt(i).println(s);
+		streams.elementAt(i).flush();
 	    }
-	} catch (IOException e) {
-	    e.printStackTrace(System.err);
 	}
     }
 
@@ -114,8 +114,10 @@ public class EchoServer {
      * Traiter les reponses aux differentes demandes du client definies dans le
      * protocole
      */
-    public boolean AnswerClient(String s, BufferedReader in,
-	    DataOutputStream out, String userName, EchoClient cl) {
+    public boolean AnswerClient(String s, BufferedReader in, PrintWriter out,
+	    String userName, EchoClient cl) {
+
+	/* Traitement du message CONNECT */
 	if (s.equals("CONNECT/" + userName + "/")) {
 	    Commandes.welcome(out, userName);
 	    Commandes.connected(this, userName, out);
@@ -133,8 +135,8 @@ public class EchoServer {
 		    boolean repeter = true;
 
 		    while (repeter) {
-			out.writeBytes("\nVeuillez indiquer le style "
-				+ "et le tempo voulu\n");
+			out.println("\nVeuillez indiquer le style "
+				+ "et le tempo voulu :");
 			out.flush();
 			answer = in.readLine();
 
@@ -175,13 +177,17 @@ public class EchoServer {
 	     */
 
 	    try {
-		serv2 = new ServerSocket();
-		serv2.setReuseAddress(true);
-		serv2.bind(new InetSocketAddress(port));
+		EchoJamClient tmpEcho = new EchoJamClient(this);
+		tmpEcho.start();
+		/******************* Client de test ********************/
+		ClientTest ct = new ClientTest();
+		ct.start();
+		/******************************************************/
 		client = serv2.accept();
 		System.out.println("New connexion at Jammin server.");
 		synchronized (this) {
 		    sockets.add(client);
+		    System.out.println("after add size = " + sockets.size());
 		    nbWaitingSocks++;
 		    this.notify();
 		}
@@ -190,6 +196,43 @@ public class EchoServer {
 	    }
 
 	    Commandes.audio_ok(out);
+	    return true;
+	}
+
+	/* Fin du traitement du message CONNECT */
+
+	return false;
+    }
+
+    public boolean AnswerJamClient(String s, PrintWriter out, EchoJamClient cl,
+	    byte[] buffer) {
+	/* Traitement reception buffer audio */
+
+	String tab[] = s.split("/");
+	int tick;
+	String buffertmp[];
+
+	/*
+	 * Si la requete du client est de type AUDIO_CHUNK et que la requete est
+	 * correcte
+	 */
+	if (tab[0].equals("AUDIO_CHUNK") && tab.length == 3
+		&& (!tab[1].equals("")) && (!tab[2].equals(""))) {
+
+	    /* recuperer la tick envoye par le client */
+	    tick = Integer.parseInt(tab[1]);
+
+	    /* recuperer les donnees dans le buffer */
+	    buffertmp = tab[2].split(" ");
+	    buffer = new byte[buffertmp.length];
+
+	    /* Convetir les donnees recues en byte */
+	    for (int i = 0; i < buffertmp.length; i++) {
+		buffer[i] = Byte.parseByte(buffertmp[i]);
+	    }
+
+	    /* Si bonne reception */
+	    Commandes.audio_okk(out);
 
 	    return true;
 	}
@@ -240,11 +283,11 @@ public class EchoServer {
 	this.sockets = sockets;
     }
 
-    public Vector<DataOutputStream> getStreams() {
+    public Vector<PrintWriter> getStreams() {
 	return streams;
     }
 
-    public void setStreams(Vector<DataOutputStream> streams) {
+    public void setStreams(Vector<PrintWriter> streams) {
 	this.streams = streams;
     }
 

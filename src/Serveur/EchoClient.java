@@ -1,9 +1,9 @@
-package Serveur;
+package serveur;
 
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
 
 /**
@@ -15,7 +15,7 @@ import java.net.Socket;
  */
 public class EchoClient extends Thread {
     private BufferedReader inchan;
-    private DataOutputStream outchan;
+    private PrintWriter outchan;
     private EchoServer server;
     private Socket socket;
     private String userName;
@@ -42,7 +42,7 @@ public class EchoClient extends Thread {
 	    try {
 		inchan = new BufferedReader(new InputStreamReader(
 			s.getInputStream()));
-		outchan = new DataOutputStream(s.getOutputStream());
+		outchan = new PrintWriter(s.getOutputStream());
 		socket = s;
 		synchronized (server) {
 		    /* On verifie si la session est pleine */
