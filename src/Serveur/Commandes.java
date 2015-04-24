@@ -35,7 +35,7 @@ public class Commandes {
     }
 
     /**
-     * Signifie que le canal audio est établi
+     * Signifie que le canal audio est e�?tabli
      */
     public static void audio_ok(PrintWriter out) {
 	out.println("AUDIO_OK/2014/");
@@ -79,7 +79,7 @@ public class Commandes {
     }
 
     /**
-     * Signale la bonne réception des parametres
+     * Signale la bonne re�?ception des parametres
      */
     public static void ack_opts(PrintWriter out) {
 	out.println("ACK_OPTS");
@@ -99,7 +99,7 @@ public class Commandes {
      */
 
     /**
-     * Bonne réception du buffer
+     * Bonne re�?ception du buffer
      */
     public static void audio_okk(PrintWriter out) {
 	out.println("AUDIO_OK");
@@ -107,7 +107,7 @@ public class Commandes {
     }
 
     /**
-     * Problème de réception
+     * Problème de re�?ception
      */
     public static void audio_ko(PrintWriter out) {
 	out.println("AUDIO_KO");
@@ -123,7 +123,7 @@ public class Commandes {
     }
 
     /**
-     * Buffer contenant le mélange global des autres musiciens
+     * Buffer contenant le me�?lange global des autres musiciens
      */
     public static void audio_mix(PrintWriter out, String buffer) {
 	out.println("AUDIO_MIX/" + buffer + "/");
