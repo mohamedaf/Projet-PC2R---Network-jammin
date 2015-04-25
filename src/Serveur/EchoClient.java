@@ -56,9 +56,6 @@ public class EchoClient extends Thread {
 		    System.out.println("EchoClient choisi");
 		    System.out.flush();
 		    s = server.removeFirstSocket();
-		} else {
-		    // System.out.println("EchoClient non choisi");
-		    // System.out.flush();
 		}
 	    }
 	    if (me) {

@@ -27,7 +27,7 @@ public class EchoServer {
     private ServerSocket serv, serv2;
     private Socket client;
     private int capacity, nbConnectedClients, nbConnectedJamClients,
-	    nbWaitingSocks, port, tickActuel;
+	    nbWaitingSocks, port, tickActuel, sizeBuff = 0;
     private String style, tempo;
     /**
      * la HashMap contenant les buffers recus a chaque tick, la clef de la
@@ -180,6 +180,9 @@ public class EchoServer {
 			if (tab[0].equals("SET_OPTIONS") && (tab.length == 3)) {
 			    this.setStyle(tab[1]);
 			    this.setTempo(tab[2]);
+			    /** taille tableau = 60/tempo * 44100 */
+			    this.sizeBuff = (60 / Integer.parseInt(this
+				    .getTempo())) * 44100;
 			    repeter = false;
 			}
 		    }
@@ -232,8 +235,10 @@ public class EchoServer {
 	return false;
     }
 
-    public boolean AnswerJamClient(String s, PrintWriter out, EchoJamClient cl,
-	    byte[] buffer, Integer tick) {
+    public byte[] AnswerJamClient(String s, PrintWriter out, EchoJamClient cl) {
+	byte[] buffer = null;
+	Integer tick;
+
 	/** Traitement reception buffer audio */
 
 	String tab[] = s.split("/");
@@ -251,25 +256,25 @@ public class EchoServer {
 
 	    /** recuperer la tick envoye par le client */
 	    tick = Integer.parseInt(tab[1]);
+
 	    /** On met a jour la variable representant le tick actuel */
-	    tickActuel = tick;
+	    if (tick > tickActuel)
+		tickActuel = tick;
 
 	    /** recuperer les donnees dans le buffer */
 	    buffertmp = tab[2].split(" ");
-	    buffer = new byte[buffertmp.length];
+	    buffer = new byte[sizeBuff];
 
 	    /** Convetir les donnees recues en int puis en byte */
-	    for (int i = 0; i < buffertmp.length; i++) {
+	    for (int i = 0; i < sizeBuff; i++) {
 		buffer[i] = Byte.parseByte(buffertmp[i]);
 	    }
 
 	    /** Si bonne reception */
 	    Commandes.audio_okk(out);
-
-	    return true;
 	}
 
-	return false;
+	return buffer;
     }
 
     public int stillWaiting() {
@@ -443,6 +448,14 @@ public class EchoServer {
 
     public void setIsJamConnexion(Boolean isJamConnexion) {
 	this.isJamConnexion = isJamConnexion;
+    }
+
+    public int getSizeBuff() {
+	return sizeBuff;
+    }
+
+    public void setSizeBuff(int sizeBuff) {
+	this.sizeBuff = sizeBuff;
     }
 
 }

@@ -61,9 +61,6 @@ public class EchoJamClient extends Thread {
 		    System.out.println("EchoJamClient choisi");
 		    System.out.flush();
 		    s = server.removeFirstSocket();
-		} else {
-		    // System.out.println("EchoJamClient non choisi");
-		    // System.out.flush();
 		}
 	    }
 	    if (me) {
@@ -85,7 +82,7 @@ public class EchoJamClient extends Thread {
 
 			while (!inchan.ready()) {
 			    try {
-				Thread.sleep(10000);
+				Thread.sleep(5000);
 				cpt++;
 			    } catch (InterruptedException e) {
 				e.printStackTrace(System.err);
@@ -107,11 +104,27 @@ public class EchoJamClient extends Thread {
 
 			    if (ok) {
 				synchronized (server) {
+				    buffer = server.AnswerJamClient(command,
+					    outchan, this);
+
 				    /** Si la requete n'est pas correcte */
-				    if (!server.AnswerJamClient(command,
-					    outchan, this, buffer, tick)) {
+				    if (buffer == null) {
 					ok = false;
 				    }
+
+				    tick = server.getTickActuel();
+
+				    System.out.println("After AnswerJamClient");
+				    System.out.println("tick = " + tick);
+
+				    String s3 = "";
+
+				    for (byte b : buffer) {
+					s3 += b + " ";
+				    }
+
+				    System.out.println("buffer = " + s3);
+				    System.out.flush();
 				}
 			    }
 			} else {
@@ -144,9 +157,6 @@ public class EchoJamClient extends Thread {
 				 * melange
 				 */
 				server.putInHashBuffersSend(tick + 4, 0);
-
-				/** On met a jour le tick actuel du serveur */
-				server.setTickActuel(tick);
 			    }
 
 			    /** j'ajoute le buffer a la hashMap */
@@ -198,12 +208,21 @@ public class EchoJamClient extends Thread {
 	}
     }
 
+    public void IncrHashBuffersSend(Integer key) {
+	synchronized (server) {
+	    server.putInHashBuffersSend(key,
+		    server.getInHashBuffersSend(key) + 1);
+	}
+    }
+
     public void testRemoveKeyFromHash(Integer key) {
-	if (server.getInHashBuffersSend(key) >= server
-		.getNbConnectedJamClients()) {
-	    /** Les melanges ont ete envoyes a tous les clients */
-	    server.getHashBuffers().remove(key);
-	    server.getHashBuffersSend().remove(key);
+	synchronized (server) {
+	    if (server.getInHashBuffersSend(key) >= server
+		    .getNbConnectedJamClients()) {
+		/** Les melanges ont ete envoyes a tous les clients */
+		server.getHashBuffers().remove(key);
+		server.getHashBuffersSend().remove(key);
+	    }
 	}
     }
 
@@ -227,5 +246,9 @@ public class EchoJamClient extends Thread {
 	synchronized (server) {
 	    return server.getTickActuel();
 	}
+    }
+
+    public int getSizeBuff() {
+	return server.getSizeBuff();
     }
 }

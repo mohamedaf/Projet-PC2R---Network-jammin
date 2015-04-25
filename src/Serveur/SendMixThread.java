@@ -34,8 +34,9 @@ public class SendMixThread extends Thread {
 	     */
 
 	    while (tick > clj.getActualTick()) {
-		System.out.println("J'attend le tick " + tick
-			+ ", tick actuel " + clj.getActualTick());
+		System.out.println("Thread " + this.getName()
+			+ ": J'attend le tick " + tick + ", tick actuel "
+			+ clj.getActualTick());
 	    }
 
 	    /** tick Actuel du serveur = tick on peux donc envoyer le melange */
@@ -47,6 +48,16 @@ public class SendMixThread extends Thread {
 	     * tick actuel
 	     */
 	    synchronized (clj) {
+		/**
+		 * J'incremente la valeur correspondante dans la hashMap de
+		 * verification
+		 */
+		clj.IncrHashBuffersSend(tick);
+		/**
+		 * Je verifie si on a effectue nbJamClientsConnectes envois on
+		 * on peux supprimer la cle correspondant au tick dans les deux
+		 * HashMap
+		 */
 		clj.testRemoveKeyFromHash(tick);
 	    }
 	} catch (InterruptedException e) {
