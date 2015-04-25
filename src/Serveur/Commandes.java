@@ -99,7 +99,7 @@ public class Commandes {
      */
 
     /**
-     * Bonne re�?ception du buffer
+     * Bonne reception du buffer
      */
     public static void audio_okk(PrintWriter out) {
 	out.println("AUDIO_OK");
@@ -123,10 +123,18 @@ public class Commandes {
     }
 
     /**
-     * Buffer contenant le me�?lange global des autres musiciens
+     * Buffer contenant le melange global des autres musiciens
      */
     public static void audio_mix(PrintWriter out, String buffer) {
 	out.println("AUDIO_MIX/" + buffer + "/");
+	out.flush();
+    }
+
+    /**
+     * Informer le nouveau client connecte du tick actuel
+     */
+    public static void actual_tick(PrintWriter out, int tick) {
+	out.println("AUDIO_SYNC/" + tick + "/");
 	out.flush();
     }
 

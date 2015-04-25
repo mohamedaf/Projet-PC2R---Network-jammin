@@ -22,70 +22,70 @@ import testAudio.MixingFloatAudioInputStream;
  */
 public class MixThread extends Thread {
 
-	private ArrayList<byte[]> buffers;
-	private EchoJamClient clj;
+    private ArrayList<byte[]> buffers;
+    private EchoJamClient clj;
 
-	public MixThread(ArrayList<byte[]> buffers, EchoJamClient clj) {
-		this.buffers = buffers;
-		this.clj = clj;
-	}
+    public MixThread(ArrayList<byte[]> buffers, EchoJamClient clj) {
+	this.buffers = buffers;
+	this.clj = clj;
+    }
 
-	/**
-	 * Je melange
-	 */
-	@Override
-	public void run() {
-		ArrayList<File> file = new ArrayList<File>();
+    /**
+     * Je melange
+     */
+    @Override
+    public void run() {
+	ArrayList<File> file = new ArrayList<File>();
 
-		/* pas sur si je mets buffers.size() ou bien 1 ou 2 */
-		AudioFormat format = new AudioFormat(22050f, 16, buffers.size(), true,
-				false);
+	/* pas sur si je mets buffers.size() ou bien 1 ou 2 */
+	AudioFormat format = new AudioFormat(22050f, 16, buffers.size(), true,
+		false);
 
+	try {
+	    for (int i = 0; i < buffers.size(); i++) {
+		file.add(new File("copie" + i + ".aif"));
+		ByteArrayInputStream dataStream = new ByteArrayInputStream(
+			buffers.get(i));
+		AudioInputStream mixed = new AudioInputStream(dataStream,
+			format, buffers.get(i).length / format.getFrameSize());
+
+		AudioSystem
+			.write(mixed, AudioFileFormat.Type.AIFF, file.get(i));
+
+	    }
+
+	    /* Nous avons maintenant buffers.size() copies a mixer */
+
+	    Collection list = new ArrayList();
+
+	    for (int i = 0; i < buffers.size(); i++) {
 		try {
-			for (int i = 0; i < buffers.size(); i++) {
-				file.add(new File("copie" + i + ".aif"));
-				ByteArrayInputStream dataStream = new ByteArrayInputStream(
-						buffers.get(i));
-				AudioInputStream mixed = new AudioInputStream(dataStream,
-						format, buffers.get(i).length / format.getFrameSize());
-
-				AudioSystem
-						.write(mixed, AudioFileFormat.Type.AIFF, file.get(i));
-
-			}
-
-			/* Nous avons maintenant buffers.size() copies a mixer */
-
-			Collection list = new ArrayList();
-
-			for (int i = 0; i < buffers.size(); i++) {
-				try {
-					list.add(AudioSystem.getAudioInputStream(new File("copie"
-							+ i + ".aif")));
-				} catch (UnsupportedAudioFileException | IOException e) {
-					e.printStackTrace(System.err);
-				}
-			}
-
-			/*** Instancier la classe s'occupant du melange */
-			MixingFloatAudioInputStream mx = new MixingFloatAudioInputStream(
-					format, list);
-
-			/** creer tableau de taille suffisante puis recuperation du melange */
-			byte[] buffer = new byte[buffers.get(0).length];
-
-			/* Recuperation du melange et ajout a la file */
-			mx.read(buffer, 0, buffers.get(0).length);
-			
-			synchronized(clj){
-				clj.addToFile(buffer);
-				/* Notifier l'ajout */
-				clj.notify();
-			}
-		} catch (IOException e) {
-			e.printStackTrace(System.err);
+		    list.add(AudioSystem.getAudioInputStream(new File("copie"
+			    + i + ".aif")));
+		} catch (UnsupportedAudioFileException | IOException e) {
+		    e.printStackTrace(System.err);
 		}
+	    }
 
+	    /*** Instancier la classe s'occupant du melange */
+	    MixingFloatAudioInputStream mx = new MixingFloatAudioInputStream(
+		    format, list);
+
+	    /** creer tableau de taille suffisante puis recuperation du melange */
+	    byte[] buffer = new byte[buffers.get(0).length];
+
+	    /* Recuperation du melange et ajout a la file */
+	    mx.read(buffer, 0, buffers.get(0).length);
+
+	    synchronized (clj) {
+		clj.addToFile(buffer);
+		/* Notifier l'ajout */
+		clj.notify();
+	    }
+	} catch (IOException e) {
+	    e.printStackTrace(System.err);
 	}
+
+    }
 
 }

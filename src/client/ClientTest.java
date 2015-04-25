@@ -6,6 +6,12 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+/**
+ * 
+ * @author Mohamed AMIN
+ * 
+ *         Classe de test simulant un client envoyant un buffer
+ */
 public class ClientTest extends Thread {
 
     @Override
@@ -17,12 +23,12 @@ public class ClientTest extends Thread {
 		    s.getInputStream()));
 	    PrintWriter out = new PrintWriter(s.getOutputStream());
 
-	    double[] buffer = new double[44100];
+	    Integer[] buffer = new Integer[44100];
 
 	    String s2 = "AUDIO_CHUNK/1/";
 
 	    for (int i = 0; i < 44100; i++) {
-		buffer[i] = Math.random() * 100;
+		buffer[i] = (int) (Math.random() * 100);
 		s2 += buffer[i] + "";
 
 		if (i < 44099)
@@ -38,10 +44,10 @@ public class ClientTest extends Thread {
 	    String[] tab = answer.split("/");
 	    String[] tab2 = tab[1].split(" ");
 
-	    double[] buffer2 = new double[44100];
+	    Integer[] buffer2 = new Integer[44100];
 
 	    for (int i = 0; i < tab2.length; i++) {
-		buffer2[i] = Double.parseDouble(tab2[i]);
+		buffer2[i] = Integer.parseInt(tab2[i]);
 	    }
 
 	    if (buffer.equals(buffer2))

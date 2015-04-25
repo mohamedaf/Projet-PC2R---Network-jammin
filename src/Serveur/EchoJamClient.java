@@ -15,153 +15,184 @@ import java.util.ArrayList;
  *         partie musicale
  */
 public class EchoJamClient extends Thread {
-	private BufferedReader inchan;
-	private PrintWriter outchan;
-	private EchoServer server;
-	private Socket socket;
-	private EchoClient client;
-	/**
-	 * File contenant le resultat du mix
-	 */
-	private ArrayList<byte[]> file;
+    private BufferedReader inchan;
+    private PrintWriter outchan;
+    private EchoServer server;
+    private Socket socket;
+    private EchoClient client;
+    /**
+     * File contenant le resultat du mix
+     */
+    private ArrayList<byte[]> file;
 
-	public EchoJamClient(EchoServer s, EchoClient client) {
-		server = s;
-		this.file = new ArrayList<byte[]>();
-	}
+    public EchoJamClient(EchoServer s, EchoClient client) {
+	this.server = s;
+	this.file = new ArrayList<byte[]>();
+    }
 
-	@Override
-	public void run() {
-		Socket s;
+    @Override
+    public void run() {
+	Socket s;
 
-		while (true) {
-			synchronized (server) {
-				if (server.stillWaiting() == 0)
-					try {
-						server.wait();
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				s = server.removeFirstSocket();
+	while (true) {
+	    synchronized (server) {
+		if (server.stillWaiting() == 0)
+		    try {
+			server.wait();
+
+			if (!server.getIsJamConnexion()) {
+			    /** Je ne suis pas concerne je me remet en attente */
+			    continue;
 			}
-			try {
-				inchan = new BufferedReader(new InputStreamReader(
-						s.getInputStream()));
-				outchan = new PrintWriter(s.getOutputStream());
-				socket = s;
-				synchronized (server) {
-					server.newConnect(outchan);
-					/*
-					 * car la capacite represente le client qui est deja
-					 * connecte par la socket de controle
-					 */
-					server.setNbConnectedClients(server.getNbConnectedClients() - 1);
-				}
-				while (true) {
-					int cpt = 0;
-					boolean ok = false;
-					byte[] buffer = null;
-					Integer tick = -1;
-
-					while (!inchan.ready()) {
-						try {
-							Thread.sleep(250);
-							cpt++;
-						} catch (InterruptedException e) {
-							e.printStackTrace(System.err);
-						}
-
-						if (cpt == 8)
-							break;
-					}
-
-					/* c'est ok le client est pret a envoyer */
-					if (cpt < 8) {
-						String command = inchan.readLine();
-
-						if (command == null || command.equals("")) {
-							ok = false;
-						}
-
-						if (ok) {
-							synchronized (server) {
-								/** Si la requete n'est pas correcte */
-								if (!server.AnswerJamClient(command, outchan,
-										this, buffer, tick)) {
-									ok = false;
-								}
-							}
-						}
-					} else if (!ok || tick == -1) {
-						if (tick == -1)
-							System.out.println("tick == -1 Erreur !!");
-
-						/** On deconnecte le client pour cause d'absence */
-						Commandes.audio_ko(outchan);
-						break;
-					}
-
-					/**
-					 * Traitement donnees audio reçus
-					 */
-
-					// Commandes.audio_mix(outchan, new String(buffer));
-
-					if (!server.getHashBuffers().containsKey(tick + 4)) {
-						server.getHashBuffers().put(tick + 4,
-								new ArrayList<byte[]>());
-					}
-
-					/** j'ajoute le buffer a la hashMap */
-					server.getHashBuffers().get(tick + 4).add(buffer);
-
-					if (server.getHashBuffers().get(tick + 4).size() == server
-							.getNbConnectedClients()) {
-						/*
-						 * Demarrer le thread qui verifie la file d'attente et a
-						 * chaque notification reçu vide le premier element
-						 */
-						
-						SendMixThread smx = new SendMixThread(buffer, outchan, this);
-						smx.start();
-						
-						/* Je melange */
-
-						MixThread mx = new MixThread(server.getHashBuffers()
-								.get(tick + 4), this);
-						
-						mx.start();
-					}
-
-				}
-				synchronized (server) {
-					server.clientJamLeft(outchan);
-					/**
-					 * On deconnecte aussi le client sur l'autre socket
-					 */
-					server.clientLeft(client.getOutchan(), client.getUserName());
-				}
-				socket.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-				System.exit(1);
-			}
+		    } catch (InterruptedException e) {
+			e.printStackTrace();
+		    }
+		System.out.println("ici");
+		System.out.flush();
+		s = server.removeFirstSocket();
+	    }
+	    try {
+		inchan = new BufferedReader(new InputStreamReader(
+			s.getInputStream()));
+		outchan = new PrintWriter(s.getOutputStream());
+		socket = s;
+		synchronized (server) {
+		    System.out.println("ici2");
+		    System.out.flush();
+		    server.newJamConnect(outchan);
 		}
-	}
+		while (true) {
+		    int cpt = 0;
+		    boolean ok = false;
+		    byte[] buffer = null;
+		    Integer tick = -1;
 
-	public ArrayList<byte[]> getFile() {
-		return file;
-	}
+		    while (!inchan.ready()) {
+			try {
+			    Thread.sleep(250);
+			    cpt++;
+			} catch (InterruptedException e) {
+			    e.printStackTrace(System.err);
+			}
 
-	public void setFile(ArrayList<byte[]> file) {
-		this.file = file;
-	}
+			if (cpt == 8)
+			    break;
+		    }
 
-	public void addToFile(byte[] buffer) {
-		file.add(buffer);
-	}
+		    /* c'est ok le client est pret a envoyer */
+		    if (cpt < 8) {
+			String command = inchan.readLine();
 
-	public byte[] popFile() {
-		return file.remove(0);
+			if (command == null || command.equals("")) {
+			    ok = false;
+			}
+
+			if (ok) {
+			    synchronized (server) {
+				/** Si la requete n'est pas correcte */
+				if (!server.AnswerJamClient(command, outchan,
+					this, buffer, tick)) {
+				    ok = false;
+				}
+			    }
+			}
+		    } else {
+			/** On deconnecte le client pour cause d'absence */
+			Commandes.audio_ko(outchan);
+			break;
+		    }
+
+		    /** La requete n'est pas correcte */
+		    if (!ok) {
+			/** On deconnecte le client */
+			Commandes.audio_ko(outchan);
+			break;
+		    }
+
+		    /**
+		     * Traitement donnees audio reçus
+		     */
+
+		    if (!server.getHashBuffers().containsKey(tick + 4)) {
+			server.getHashBuffers().put(tick + 4,
+				new ArrayList<byte[]>());
+			/** Pour l'instant aucun client n'a recu de melange */
+			server.putInHashBuffersSend(tick + 4, 0);
+
+			/** On met a jour le tick actuel du serveur */
+			server.setTickActuel(tick);
+		    }
+
+		    /** j'ajoute le buffer a la hashMap */
+		    server.getHashBuffers().get(tick + 4).add(buffer);
+
+		    if (server.getHashBuffers().get(tick + 4).size() == server
+			    .getNbConnectedJamClients()) {
+			/**
+			 * Demarrer le thread qui verifie la file d'attente et a
+			 * chaque notification reçu vide le premier element
+			 */
+
+			SendMixThread smx = new SendMixThread(this, outchan,
+				tick + 4);
+			smx.start();
+
+			/** Je retire le buffer actuel puis je melange */
+
+			ArrayList<byte[]> buffersToMix = new ArrayList<byte[]>();
+
+			for (byte[] b : server.getHashBuffers().get(tick + 4)) {
+			    if (!b.equals(buffer))
+				buffersToMix.add(b);
+			}
+
+			MixThread mx = new MixThread(buffersToMix, this);
+
+			mx.start();
+		    }
+
+		}
+		synchronized (server) {
+		    server.clientJamLeft(outchan);
+		    /**
+		     * On deconnecte aussi le client sur l'autre socket
+		     */
+		    server.clientLeft(client.getOutchan(), client.getUserName());
+		}
+		socket.close();
+	    } catch (IOException e) {
+		e.printStackTrace();
+		System.exit(1);
+	    }
 	}
+    }
+
+    public void testRemoveKeyFromHash(Integer key) {
+	if (server.getInHashBuffersSend(key) >= server
+		.getNbConnectedJamClients()) {
+	    /** Les melanges ont ete envoyes a tous les clients */
+	    server.getHashBuffers().remove(key);
+	    server.getHashBuffersSend().remove(key);
+	}
+    }
+
+    public ArrayList<byte[]> getFile() {
+	return file;
+    }
+
+    public void setFile(ArrayList<byte[]> file) {
+	this.file = file;
+    }
+
+    public void addToFile(byte[] buffer) {
+	file.add(buffer);
+    }
+
+    public byte[] popFile() {
+	return file.remove(0);
+    }
+
+    public Integer getActualTick() {
+	return server.getTickActuel();
+    }
 }
