@@ -27,72 +27,94 @@ public class EchoClient extends Thread {
 
     @Override
     public void run() {
-	Socket s;
+	Socket s = null;
+	boolean me;
 
 	while (true) {
+	    me = false;
+
 	    synchronized (server) {
-		if (server.stillWaiting() == 0)
+		if (server.stillWaiting() == 0) {
 		    try {
 			server.wait();
-
-			if (server.getIsJamConnexion()) {
-			    /** Je ne suis pas concerne je me remet en attente */
-			    continue;
-			}
 		    } catch (InterruptedException e) {
 			e.printStackTrace();
 		    }
-		s = server.removeFirstSocket();
-	    }
-	    try {
-		inchan = new BufferedReader(new InputStreamReader(
-			s.getInputStream()));
-		outchan = new PrintWriter(s.getOutputStream());
-		socket = s;
-		synchronized (server) {
-		    /* On verifie si la session est pleine */
-		    if (server.getCapacity() == server.getNbConnectedClients()) {
-			/**
-			 * Si c'est le cas on previent le client, fermons la
-			 * socket proprement puis passons a l'iteration suivant
-			 * et donc a l'attente d'une nouvelle connexion
-			 */
-			Commandes.full_session(outchan);
-			server.setNbWaitingSocks(server.getNbWaitingSocks() - 1);
-			socket.close();
-			continue;
-		    }
+		}
 
-		    server.newConnect(outchan);
-		    connecte = true;
+		if (!server.getIsJamConnexion()) {
+		    me = true;
+		} else {
+		    /**
+		     * Si je ne suis pas concerne je notifie l'autre client qui
+		     * peut l'etre
+		     */
+		    server.notify();
 		}
-		/* Recuperer le nom du client */
-		userName = inchan.readLine();
-		synchronized (server) {
-		    server.writeAllButMe("*** New user on chat ***\n"
-			    + "*** User name : " + userName + " ***\n", outchan);
+
+		if (me) {
+		    System.out.println("EchoClient choisi");
+		    System.out.flush();
+		    s = server.removeFirstSocket();
+		} else {
+		    // System.out.println("EchoClient non choisi");
+		    // System.out.flush();
 		}
-		while (true && connecte) {
-		    String command = inchan.readLine();
-		    if (command == null || command.equals("")
-			    || command.equals("EXIT/" + userName + "/")) {
-			System.out.println(" Fin de connexion.");
-			break;
+	    }
+	    if (me) {
+		try {
+		    inchan = new BufferedReader(new InputStreamReader(
+			    s.getInputStream()));
+		    outchan = new PrintWriter(s.getOutputStream());
+		    socket = s;
+		    synchronized (server) {
+			/* On verifie si la session est pleine */
+			if (server.getCapacity() == server
+				.getNbConnectedClients()) {
+			    /**
+			     * Si c'est le cas on previent le client, fermons la
+			     * socket proprement puis passons a l'iteration
+			     * suivant et donc a l'attente d'une nouvelle
+			     * connexion
+			     */
+			    Commandes.full_session(outchan);
+			    server.setNbWaitingSocks(server.getNbWaitingSocks() - 1);
+			    socket.close();
+			    continue;
+			}
+
+			server.newConnect(outchan);
+			connecte = true;
+		    }
+		    /* Recuperer le nom du client */
+		    userName = inchan.readLine();
+		    synchronized (server) {
+			server.writeAllButMe("*** New user on chat ***\n"
+				+ "*** User name : " + userName + " ***\n",
+				outchan);
+		    }
+		    while (true && connecte) {
+			String command = inchan.readLine();
+			if (command == null || command.equals("")
+				|| command.equals("EXIT/" + userName + "/")) {
+			    System.out.println(" Fin de connexion.");
+			    break;
+			}
+			synchronized (server) {
+			    if (!server.AnswerClient(command, inchan, outchan,
+				    userName, this))
+				server.writeAllButMe(command + "\n", outchan,
+					userName);
+			}
 		    }
 		    synchronized (server) {
-			if (!server.AnswerClient(command, inchan, outchan,
-				userName, this))
-			    server.writeAllButMe(command + "\n", outchan,
-				    userName);
+			server.clientLeft(outchan, userName);
 		    }
+		    socket.close();
+		} catch (IOException e) {
+		    e.printStackTrace();
+		    System.exit(1);
 		}
-		synchronized (server) {
-		    server.clientLeft(outchan, userName);
-		}
-		socket.close();
-	    } catch (IOException e) {
-		e.printStackTrace();
-		System.exit(1);
 	    }
 	}
     }

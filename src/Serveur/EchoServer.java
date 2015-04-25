@@ -75,7 +75,7 @@ public class EchoServer {
 	try {
 	    this.serv2 = new ServerSocket();
 	    this.serv2.setReuseAddress(true);
-	    this.serv2.bind(new InetSocketAddress(2014));
+	    this.serv2.bind(new InetSocketAddress(1234));
 	} catch (IOException e) {
 	    e.printStackTrace(System.err);
 	}
@@ -102,7 +102,7 @@ public class EchoServer {
     public void newJamConnect(PrintWriter out) {
 	nbConnectedJamClients++;
 	nbWaitingSocks--;
-	System.out.println(" New Jam connection.");
+	System.out.println(" New connexion at Jammin server");
 	streams.add(out);
     }
 
@@ -213,10 +213,8 @@ public class EchoServer {
 		// ct.start();
 		/******************************************************/
 		client = serv2.accept();
-		System.out.println("New connexion at Jammin server.");
 		synchronized (this) {
 		    sockets.add(client);
-		    System.out.println("after add size = " + sockets.size());
 		    nbWaitingSocks++;
 		    /** Je previens que c'est une connexion a la jam session */
 		    this.setIsJamConnexion(true);
@@ -231,7 +229,6 @@ public class EchoServer {
 	}
 
 	/* Fin du traitement du message CONNECT */
-
 	return false;
     }
 
@@ -241,6 +238,9 @@ public class EchoServer {
 
 	String tab[] = s.split("/");
 	String buffertmp[];
+
+	System.out.println("commande reçu : " + s);
+	System.out.flush();
 
 	/**
 	 * Si la requete du client est de type AUDIO_CHUNK et que la requete est

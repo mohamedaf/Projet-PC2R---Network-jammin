@@ -30,15 +30,15 @@ public class Commandes {
      * audio
      */
     public static void audio_port(PrintWriter out) {
-	out.println("AUDIO_PORT/2014/");
+	out.println("AUDIO_PORT/1234/");
 	out.flush();
     }
 
     /**
-     * Signifie que le canal audio est e�?tabli
+     * Signifie que le canal audio est etabli
      */
     public static void audio_ok(PrintWriter out) {
-	out.println("AUDIO_OK/2014/");
+	out.println("AUDIO_OK/1234/");
 	out.flush();
     }
 

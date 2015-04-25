@@ -1,4 +1,4 @@
-package testAudio;
+package audio;
 
 /*
  *	MixingFloatAudioInputStream

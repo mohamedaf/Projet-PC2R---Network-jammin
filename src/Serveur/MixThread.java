@@ -12,7 +12,7 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import testAudio.MixingFloatAudioInputStream;
+import audio.MixingFloatAudioInputStream;
 
 /**
  * 

@@ -23,7 +23,9 @@ public class SendMixThread extends Thread {
     @Override
     public void run() {
 	try {
-	    clj.wait();
+	    synchronized (clj) {
+		clj.wait();
+	    }
 
 	    /**
 	     * J'opte pour l'instant pour la solution avec attente active c'est
@@ -44,7 +46,9 @@ public class SendMixThread extends Thread {
 	     * ou pas encore donc si tous les clients ont recu le melange du
 	     * tick actuel
 	     */
-	    clj.testRemoveKeyFromHash(tick);
+	    synchronized (clj) {
+		clj.testRemoveKeyFromHash(tick);
+	    }
 	} catch (InterruptedException e) {
 	    e.printStackTrace(System.err);
 	}
