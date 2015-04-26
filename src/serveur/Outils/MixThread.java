@@ -12,7 +12,7 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import serveur.serveurs.EchoJamClient;
+import serveur.Serveurs.EchoJamClient;
 import audio.MixingFloatAudioInputStream;
 
 /**

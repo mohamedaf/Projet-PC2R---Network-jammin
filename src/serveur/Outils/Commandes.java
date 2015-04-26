@@ -2,7 +2,7 @@ package serveur.Outils;
 
 import java.io.PrintWriter;
 
-import serveur.serveurs.EchoServer;
+import serveur.Serveurs.EchoServer;
 
 /**
  * 
@@ -189,6 +189,15 @@ public class Commandes {
     public static void audio_mix(PrintWriter out, String buffer) {
 	out.println("AUDIO_MIX/" + buffer + "/");
 	out.flush();
+    }
+
+    /***************************************************************************
+     * Discussion instantanee
+     */
+
+    public static void Listen(EchoServer s, PrintWriter out, String userName,
+	    String message) {
+	s.writeAllButMe("LISTEN/" + userName + "/" + message + "/", out);
     }
 
     /**

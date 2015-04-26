@@ -2,7 +2,7 @@ package serveur.Outils;
 
 import java.io.PrintWriter;
 
-import serveur.serveurs.EchoJamClient;
+import serveur.Serveurs.EchoJamClient;
 
 /**
  * 

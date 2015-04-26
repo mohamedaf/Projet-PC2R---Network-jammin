@@ -1,4 +1,4 @@
-﻿package serveur.serveurs;
+﻿package serveur.Serveurs;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -106,7 +106,7 @@ public class EchoJamClient extends Thread {
 
 			while (!inchan.ready()) {
 			    try {
-				Thread.sleep(5000);
+				Thread.sleep(250);
 				cpt++;
 			    } catch (InterruptedException e) {
 				e.printStackTrace(System.err);
@@ -186,6 +186,12 @@ public class EchoJamClient extends Thread {
 
 			    /** j'ajoute le buffer a la hashMap */
 			    server.getHashBuffers().get(tick + 4).add(buffer);
+
+			    while (server.getHashBuffers().get(tick + 4).size() < server
+				    .getNbConnectedJamClients()) {
+				System.out.println("Thread " + this.getName()
+					+ ": Attente des autres clients");
+			    }
 
 			    if (server.getHashBuffers().get(tick + 4).size() == server
 				    .getNbConnectedJamClients()) {

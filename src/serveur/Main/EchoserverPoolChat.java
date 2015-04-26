@@ -1,6 +1,6 @@
 package serveur.Main;
 
-import serveur.serveurs.EchoServer;
+import serveur.Serveurs.EchoServer;
 
 /**
  * 
@@ -10,8 +10,9 @@ import serveur.serveurs.EchoServer;
  */
 public class EchoserverPoolChat {
     public static void main(String args[]) {
-	int capacity = 3;
-	EchoServer server = new EchoServer(2013, capacity);
+	int capacity = 4;
+	int port = 2015;
+	EchoServer server = new EchoServer(port, capacity);
 	server.run();
     }
 }

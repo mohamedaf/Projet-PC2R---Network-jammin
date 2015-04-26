@@ -1,4 +1,4 @@
-package serveur.serveurs;
+package serveur.Serveurs;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -125,10 +125,7 @@ public class EchoClient extends Thread {
 			 * On traite la commande envoye par le client
 			 */
 			synchronized (server) {
-			    if (!server.AnswerClient(command, inchan, outchan,
-				    this))
-				server.writeAllButMe(command + "\n", outchan,
-					userName);
+			    server.AnswerClient(command, inchan, outchan, this);
 			}
 			System.out.println(userName + " said : " + command);
 		    }

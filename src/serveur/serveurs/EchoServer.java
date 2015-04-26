@@ -1,4 +1,4 @@
-package serveur.serveurs;
+package serveur.Serveurs;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -302,6 +302,10 @@ public class EchoServer {
 	    }
 
 	    Commandes.audio_ok(out);
+	    return true;
+	} else if (s.contains("TALK/")) {
+	    tabC = s.split("/");
+	    Commandes.Listen(this, out, cl.getUserName(), tabC[1]);
 	    return true;
 	}
 
