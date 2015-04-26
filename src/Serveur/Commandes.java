@@ -20,7 +20,7 @@ public class Commandes {
      * Signifie au musicien qui a demandee la connexion que celle-ci est accepte
      * sous le nom "userName"
      */
-    public static void welcome(PrintWriter out, String userName) {
+    public synchronized static void welcome(PrintWriter out, String userName) {
 	out.println("WELCOME/" + userName + "/");
 	out.flush();
     }
@@ -64,7 +64,7 @@ public class Commandes {
      * Signale au client que la session est vide
      */
     public static void empty_session(PrintWriter out) {
-	out.println("EMPTY_SESSION");
+	out.println("EMPTY_SESSION/");
 	out.flush();
     }
 
@@ -82,7 +82,7 @@ public class Commandes {
      * Signale la bonne re�?ception des parametres
      */
     public static void ack_opts(PrintWriter out) {
-	out.println("ACK_OPTS");
+	out.println("ACK_OPTS/");
 	out.flush();
     }
 
@@ -90,7 +90,7 @@ public class Commandes {
      * Signale au client que la session est plein
      */
     public static void full_session(PrintWriter out) {
-	out.println("FULL_SESSION");
+	out.println("FULL_SESSION/");
 	out.flush();
     }
 
@@ -102,7 +102,7 @@ public class Commandes {
      * Bonne reception du buffer
      */
     public static void audio_okk(PrintWriter out) {
-	out.println("AUDIO_OK");
+	out.println("AUDIO_OK/");
 	out.flush();
     }
 
@@ -110,7 +110,7 @@ public class Commandes {
      * Problème de re�?ception
      */
     public static void audio_ko(PrintWriter out) {
-	out.println("AUDIO_KO");
+	out.println("AUDIO_KO/");
 	out.flush();
     }
 

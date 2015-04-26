@@ -83,15 +83,13 @@ public class EchoClient extends Thread {
 			server.newConnect(outchan);
 			connecte = true;
 		    }
-		    /* Recuperer le nom du client */
-		    userName = inchan.readLine();
-		    synchronized (server) {
-			server.writeAllButMe("*** New user on chat ***\n"
-				+ "*** User name : " + userName + " ***\n",
-				outchan);
-		    }
+
 		    while (true && connecte) {
 			String command = inchan.readLine();
+			if (command != null) {
+			    command = Utils.filter(command);
+			}
+
 			if (command == null || command.equals("")
 				|| command.equals("EXIT/" + userName + "/")) {
 			    System.out.println(" Fin de connexion.");
@@ -99,10 +97,11 @@ public class EchoClient extends Thread {
 			}
 			synchronized (server) {
 			    if (!server.AnswerClient(command, inchan, outchan,
-				    userName, this))
+				    this))
 				server.writeAllButMe(command + "\n", outchan,
 					userName);
 			}
+			System.out.println(userName + " said : " + command);
 		    }
 		    synchronized (server) {
 			server.clientLeft(outchan, userName);
@@ -135,4 +134,5 @@ public class EchoClient extends Thread {
     public void setOutchan(PrintWriter outchan) {
 	this.outchan = outchan;
     }
+
 }

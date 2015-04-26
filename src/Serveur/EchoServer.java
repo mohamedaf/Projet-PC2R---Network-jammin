@@ -145,16 +145,20 @@ public class EchoServer {
      * protocole
      */
     public boolean AnswerClient(String s, BufferedReader in, PrintWriter out,
-	    String userName, EchoClient cl) {
-
+	    EchoClient cl) {
+	String[] tabC;
+	String userName;
 	/* Traitement du message CONNECT */
-	if (s.equals("CONNECT/" + userName + "/")) {
+	if (s.contains("CONNECT/")) {
+	    tabC = s.split("/");
+	    cl.setUserName(tabC[1]);
+	    userName = cl.getUserName();
 	    Commandes.welcome(out, userName);
 	    Commandes.connected(this, userName, out);
 
 	    if (this.style == null || this.tempo == null) {
 		/* Premier client connecte */
-		Commandes.empty_session(out);
+
 		try {
 		    /**
 		     * On demande au premier client de choisir le style et le
@@ -165,11 +169,10 @@ public class EchoServer {
 		    boolean repeter = true;
 
 		    while (repeter) {
-			out.println("\nVeuillez indiquer le style "
-				+ "et le tempo voulu :");
-			out.flush();
+			Commandes.empty_session(out);
 			answer = in.readLine();
-
+			if (answer != null)
+			    answer = Utils.filter(answer);
 			/*
 			 * if (answer == null || answer.equals("EXIT/" +
 			 * userName + "/")) { cl.closeSocket(); return true; }
@@ -200,8 +203,8 @@ public class EchoServer {
 
 		Commandes.current_session(out, this.getStyle(),
 			this.getTempo(), this.getNbConnectedClients());
+		Commandes.actual_tick(out, this.getTickActuel());
 	    }
-
 	    Commandes.audio_port(out);
 
 	    /**
