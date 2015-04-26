@@ -1,6 +1,8 @@
-package serveur;
+package serveur.Outils;
 
 import java.io.PrintWriter;
+
+import serveur.serveurs.EchoServer;
 
 /**
  * 
@@ -187,6 +189,23 @@ public class Commandes {
     public static void audio_mix(PrintWriter out, String buffer) {
 	out.println("AUDIO_MIX/" + buffer + "/");
 	out.flush();
+    }
+
+    /**
+     * retourne la chaine sans les caracteres non correctes
+     * 
+     * @param in
+     *            : chaine de caractere
+     * @return : chaine correcte
+     */
+    public static String filter(String in) {
+	String out = "";
+
+	for (char c : in.toCharArray()) {
+	    if (c > 31)
+		out += c;
+	}
+	return out;
     }
 
 }

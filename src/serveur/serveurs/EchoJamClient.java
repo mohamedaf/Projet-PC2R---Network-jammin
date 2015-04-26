@@ -1,4 +1,4 @@
-﻿package serveur;
+﻿package serveur.serveurs;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -6,6 +6,10 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
+
+import serveur.Outils.Commandes;
+import serveur.Outils.MixThread;
+import serveur.Outils.SendMixThread;
 
 /**
  * 

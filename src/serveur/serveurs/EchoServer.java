@@ -1,4 +1,4 @@
-package serveur;
+package serveur.serveurs;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,6 +9,8 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Vector;
+
+import serveur.Outils.Commandes;
 
 /**
  * 
@@ -243,7 +245,7 @@ public class EchoServer {
 			Commandes.empty_session(out);
 			answer = in.readLine();
 			if (answer != null)
-			    answer = Utils.filter(answer);
+			    answer = Commandes.filter(answer);
 
 			tab = answer.split("/");
 

@@ -1,10 +1,12 @@
-package serveur;
+package serveur.serveurs;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+
+import serveur.Outils.Commandes;
 
 /**
  * 
@@ -107,7 +109,7 @@ public class EchoClient extends Thread {
 		    while (true && connecte) {
 			String command = inchan.readLine();
 			if (command != null) {
-			    command = Utils.filter(command);
+			    command = Commandes.filter(command);
 			}
 
 			/**

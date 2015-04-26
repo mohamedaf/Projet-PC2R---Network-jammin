@@ -1,4 +1,4 @@
-package serveur;
+package serveur.Outils;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -12,6 +12,7 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import serveur.serveurs.EchoJamClient;
 import audio.MixingFloatAudioInputStream;
 
 /**
@@ -106,7 +107,7 @@ public class MixThread extends Thread {
 		synchronized (clj) {
 		    clj.addToFile(buffer);
 		    /** Notifier l'ajout */
-		    clj.notify();
+		    clj.notifyAll();
 		}
 	    } catch (IOException e) {
 		e.printStackTrace(System.err);
@@ -125,7 +126,7 @@ public class MixThread extends Thread {
 	    synchronized (clj) {
 		clj.addToFile(buffer);
 		/** Notifier l'ajout */
-		clj.notify();
+		clj.notifyAll();
 	    }
 	}
 
