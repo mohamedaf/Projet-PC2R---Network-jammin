@@ -25,6 +25,14 @@ public class EchoJamClient extends Thread {
      */
     private ArrayList<byte[]> file;
 
+    /**
+     * Constructeur
+     * 
+     * @param s
+     *            : le serveur
+     * @param client
+     *            : le client correspondant
+     */
     public EchoJamClient(EchoServer s, EchoClient client) {
 	this.server = s;
 	this.file = new ArrayList<byte[]>();
@@ -38,6 +46,9 @@ public class EchoJamClient extends Thread {
 	while (true) {
 	    me = false;
 
+	    /**
+	     * Attendre la connexion d'un client
+	     */
 	    synchronized (server) {
 		if (server.stillWaiting() == 0) {
 		    try {
@@ -48,6 +59,9 @@ public class EchoJamClient extends Thread {
 		}
 
 		if (server.getIsJamConnexion()) {
+		    /**
+		     * Je suis concerne
+		     */
 		    me = true;
 		} else {
 		    /**
@@ -60,6 +74,9 @@ public class EchoJamClient extends Thread {
 		if (me) {
 		    System.out.println("EchoJamClient choisi");
 		    System.out.flush();
+		    /**
+		     * Je recupere la socket
+		     */
 		    s = server.removeFirstSocket();
 		}
 	    }
@@ -71,6 +88,9 @@ public class EchoJamClient extends Thread {
 		    socket = s;
 
 		    synchronized (server) {
+			/**
+			 * On previens le serveur de la nouvelle connexion
+			 */
 			server.newJamConnect(outchan);
 		    }
 
@@ -88,11 +108,16 @@ public class EchoJamClient extends Thread {
 				e.printStackTrace(System.err);
 			    }
 
-			    if (cpt == 8)
+			    if (cpt == 8) {
+				/**
+				 * le client n'envoie rien on doit le
+				 * deconnecter
+				 */
 				break;
+			    }
 			}
 
-			/* c'est ok le client est pret a envoyer */
+			/** c'est ok le client est pret a envoyer */
 			if (cpt < 8) {
 			    System.out.println("c'est ok, cpt = " + cpt);
 			    System.out.flush();
@@ -128,8 +153,6 @@ public class EchoJamClient extends Thread {
 				}
 			    }
 			} else {
-			    System.out.println("c'est ko1");
-			    System.out.flush();
 			    /** On deconnecte le client pour cause d'absence */
 			    Commandes.audio_ko(outchan);
 			    break;
@@ -137,8 +160,6 @@ public class EchoJamClient extends Thread {
 
 			/** La requete n'est pas correcte */
 			if (!ok) {
-			    System.out.println("c'est ko2");
-			    System.out.flush();
 			    /** On deconnecte le client */
 			    Commandes.audio_ko(outchan);
 			    break;
@@ -208,6 +229,13 @@ public class EchoJamClient extends Thread {
 	}
     }
 
+    /**
+     * Incrementer de 1 la valeur correspondante a key dans la HashMap de
+     * verification
+     * 
+     * @param key
+     *            : key
+     */
     public void IncrHashBuffersSend(Integer key) {
 	synchronized (server) {
 	    server.putInHashBuffersSend(key,
@@ -215,6 +243,13 @@ public class EchoJamClient extends Thread {
 	}
     }
 
+    /**
+     * sypprimer les elements correspondants a key dans les deux HashMap si le
+     * melange est envoye a tous les clients
+     * 
+     * @param key
+     *            : key
+     */
     public void testRemoveKeyFromHash(Integer key) {
 	synchronized (server) {
 	    if (server.getInHashBuffersSend(key) >= server
@@ -226,28 +261,50 @@ public class EchoJamClient extends Thread {
 	}
     }
 
+    /**
+     * retourne la file d'attente de buffers
+     * 
+     * @return : file
+     */
     public ArrayList<byte[]> getFile() {
 	return file;
     }
 
-    public void setFile(ArrayList<byte[]> file) {
-	this.file = file;
-    }
-
+    /**
+     * Ajouter un buffer a la file
+     * 
+     * @param buffer
+     *            : buffer
+     */
     public void addToFile(byte[] buffer) {
 	file.add(buffer);
     }
 
+    /**
+     * supprime le premier element de la file et le retourne
+     * 
+     * @return : premier element de la file
+     */
     public byte[] popFile() {
 	return file.remove(0);
     }
 
+    /**
+     * retourne le tick actuel du serveur
+     * 
+     * @return : tickActuel serveur
+     */
     public Integer getActualTick() {
 	synchronized (server) {
 	    return server.getTickActuel();
 	}
     }
 
+    /**
+     * retourne la taille d'un buffer
+     * 
+     * @return : buffer size
+     */
     public int getSizeBuff() {
 	return server.getSizeBuff();
     }

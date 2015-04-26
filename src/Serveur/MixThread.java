@@ -25,6 +25,14 @@ public class MixThread extends Thread {
     private ArrayList<byte[]> buffers;
     private EchoJamClient clj;
 
+    /**
+     * Constructeur
+     * 
+     * @param buffers
+     *            : ArrayList contenant les buffers a melanger
+     * @param clj
+     *            : Jam client a qui le melange doit etre envoye
+     */
     public MixThread(ArrayList<byte[]> buffers, EchoJamClient clj) {
 	this.buffers = buffers;
 	this.clj = clj;
@@ -33,20 +41,29 @@ public class MixThread extends Thread {
     /**
      * Je melange
      */
+    @SuppressWarnings({ "rawtypes", "unchecked", "resource" })
     @Override
     public void run() {
 	/**
-	 * buffers.size() = 0 si client unique dans le cas du client unique pas
-	 * d'envois a ce client
+	 * buffers.size() = 0 si client unique dans le cas du client unique un
+	 * tableau contenant que des 0 est envoye
 	 */
 	if (buffers.size() > 0) {
 	    ArrayList<File> file = new ArrayList<File>();
 
-	    /* pas sur si je mets buffers.size() ou bien 1 ou 2 */
+	    /**
+	     * La variable format sert pour la construction des nouveaux
+	     * fichiers audio et le melange elle contient les parametres audios
+	     * a prendre en compte
+	     */
+	    // pas sur si je mets buffers.size() ou bien 1 ou 2
 	    AudioFormat format = new AudioFormat(44100f, 16, buffers.size(),
 		    true, false);
 
 	    try {
+		/**
+		 * Creer des fichiers audios a partir des buffers
+		 */
 		for (int i = 0; i < buffers.size(); i++) {
 		    file.add(new File("copie" + i + ".aif"));
 		    ByteArrayInputStream dataStream = new ByteArrayInputStream(
@@ -60,7 +77,7 @@ public class MixThread extends Thread {
 
 		}
 
-		/* Nous avons maintenant buffers.size() copies a mixer */
+		/** Nous avons maintenant buffers.size() copies a mixer */
 
 		Collection list = new ArrayList();
 
@@ -83,12 +100,12 @@ public class MixThread extends Thread {
 		 */
 		byte[] buffer = new byte[clj.getSizeBuff()];
 
-		/* Recuperation du melange et ajout a la file */
+		/** Recuperation du melange et ajout a la file */
 		mx.read(buffer, 0, clj.getSizeBuff());
 
 		synchronized (clj) {
 		    clj.addToFile(buffer);
-		    /* Notifier l'ajout */
+		    /** Notifier l'ajout */
 		    clj.notify();
 		}
 	    } catch (IOException e) {
@@ -107,7 +124,7 @@ public class MixThread extends Thread {
 
 	    synchronized (clj) {
 		clj.addToFile(buffer);
-		/* Notifier l'ajout */
+		/** Notifier l'ajout */
 		clj.notify();
 	    }
 	}

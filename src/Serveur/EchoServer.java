@@ -11,10 +11,6 @@ import java.util.HashMap;
 import java.util.Vector;
 
 /**
- * Idee essayer d'ameliorer en liberant la place d'un client apres deconnexion
- */
-
-/**
  * 
  * @author Mohamed AMIN
  * 
@@ -48,6 +44,14 @@ public class EchoServer {
      */
     private Boolean isJamConnexion = false;
 
+    /**
+     * Constructeur
+     * 
+     * @param port
+     *            : port pour la connexion au serveur
+     * @param capacity
+     *            : nombre de client maximal pouvant se connecter
+     */
     public EchoServer(int port, int capacity) {
 	this.capacity = capacity;
 	this.port = port;
@@ -81,6 +85,11 @@ public class EchoServer {
 	}
     }
 
+    /**
+     * Supprime et retourne la socket en tete de liste
+     * 
+     * @return : premier element de la liste de sockets
+     */
     public Socket removeFirstSocket() {
 	System.out.println("size = " + sockets.size());
 	Socket ret = sockets.get(0);
@@ -88,6 +97,12 @@ public class EchoServer {
 	return ret;
     }
 
+    /**
+     * nouvelle connexion d'un client au serveur
+     * 
+     * @param out
+     *            : buffer de sortie vers le client
+     */
     public void newConnect(PrintWriter out) {
 	nbConnectedClients++;
 	nbWaitingSocks--;
@@ -99,6 +114,12 @@ public class EchoServer {
 	out.flush();
     }
 
+    /**
+     * nouvelle connexion d'un Jam client au serveur
+     * 
+     * @param out
+     *            : buffer de sortie vers le client
+     */
     public void newJamConnect(PrintWriter out) {
 	nbConnectedJamClients++;
 	nbWaitingSocks--;
@@ -106,6 +127,14 @@ public class EchoServer {
 	streams.add(out);
     }
 
+    /**
+     * Un client a quitte la session
+     * 
+     * @param out
+     *            : buffer de sortie vers le client
+     * @param userName
+     *            : nom du client
+     */
     public void clientLeft(PrintWriter out, String userName) {
 	nbConnectedClients--;
 	System.out.println(" Client left.");
@@ -115,12 +144,27 @@ public class EchoServer {
 	streams.remove(out);
     }
 
+    /**
+     * Un Jam client a quitte la session
+     * 
+     * @param out
+     *            : buffer de sortie vers le client
+     */
     public void clientJamLeft(PrintWriter out) {
 	nbConnectedJamClients--;
 	System.out.println(" Client Jam left.");
 	streams.remove(out);
     }
 
+    /**
+     * Envoie un message a tous les clients sauf le client ayant le buffer de
+     * sortie out
+     * 
+     * @param s
+     *            : chaine de caractere a envoyer
+     * @param out
+     *            : buffer de sortie vers le client
+     */
     public void writeAllButMe(String s, PrintWriter out) {
 	for (int i = 0; i < nbConnectedClients; i++) {
 	    if (streams.elementAt(i) != out) {
@@ -130,6 +174,17 @@ public class EchoServer {
 	}
     }
 
+    /**
+     * Envoie un message a tous les clients sauf le client ayant le buffer de
+     * sortie out
+     * 
+     * @param s
+     *            : chaine de caractere a envoyer
+     * @param out
+     *            : buffer de sortie vers le client
+     * @param userName
+     *            : nom du client expediteur du message
+     */
     public void writeAllButMe(String s, PrintWriter out, String userName) {
 	for (int i = 0; i < nbConnectedClients; i++) {
 	    if (streams.elementAt(i) != out) {
@@ -143,12 +198,26 @@ public class EchoServer {
     /**
      * Traiter les reponses aux differentes demandes du client definies dans le
      * protocole
+     * 
+     * @param s
+     *            : message recu de la part du cleint
+     * @param in
+     *            : buffer d'entree du client
+     * @param out
+     *            : buffer de sortie vers le client
+     * @param cl
+     *            : le client
+     * @return true si protocole reconnu false sinon (si false message chat
+     *         room)
      */
     public boolean AnswerClient(String s, BufferedReader in, PrintWriter out,
 	    EchoClient cl) {
 	String[] tabC;
 	String userName;
-	/* Traitement du message CONNECT */
+
+	/**
+	 * Traitement du message CONNECT
+	 */
 	if (s.contains("CONNECT/")) {
 	    tabC = s.split("/");
 	    cl.setUserName(tabC[1]);
@@ -157,7 +226,9 @@ public class EchoServer {
 	    Commandes.connected(this, userName, out);
 
 	    if (this.style == null || this.tempo == null) {
-		/* Premier client connecte */
+		/**
+		 * Premier client connecte
+		 */
 
 		try {
 		    /**
@@ -173,10 +244,6 @@ public class EchoServer {
 			answer = in.readLine();
 			if (answer != null)
 			    answer = Utils.filter(answer);
-			/*
-			 * if (answer == null || answer.equals("EXIT/" +
-			 * userName + "/")) { cl.closeSocket(); return true; }
-			 */
 
 			tab = answer.split("/");
 
@@ -190,20 +257,22 @@ public class EchoServer {
 			}
 		    }
 
-		    /* Signaler la bonne reception des parametres */
+		    /**
+		     * Signaler la bonne reception des parametres
+		     */
 		    Commandes.ack_opts(out);
 		} catch (IOException e) {
 		    e.printStackTrace(System.err);
 		}
 	    } else {
 		/**
-		 * ça n'est pas le premier client donc le style et le tempo sont
+		 * ca n'est pas le premier client donc le style et le tempo sont
 		 * deja connues
 		 */
 
 		Commandes.current_session(out, this.getStyle(),
 			this.getTempo(), this.getNbConnectedClients());
-		Commandes.actual_tick(out, this.getTickActuel());
+		Commandes.audio_sync(out, this.getTickActuel());
 	    }
 	    Commandes.audio_port(out);
 
@@ -234,10 +303,20 @@ public class EchoServer {
 	    return true;
 	}
 
-	/* Fin du traitement du message CONNECT */
 	return false;
     }
 
+    /**
+     * Traiter un message venant d'un Jam client
+     * 
+     * @param s
+     *            : le message venant du client
+     * @param out
+     *            : buffer de sortie vers le client
+     * @param cl
+     *            : le client
+     * @return : le buffer envoye par le client
+     */
     public byte[] AnswerJamClient(String s, PrintWriter out, EchoJamClient cl) {
 	byte[] buffer = null;
 	Integer tick;
@@ -280,10 +359,18 @@ public class EchoServer {
 	return buffer;
     }
 
+    /**
+     * retourne Nombre de clients en attente de connexion
+     * 
+     * @return nbWaitingSocks
+     */
     public int stillWaiting() {
 	return nbWaitingSocks;
     }
 
+    /**
+     * Le serveur principal
+     */
     public void run() {
 	try {
 	    serv = new ServerSocket();
@@ -309,156 +396,186 @@ public class EchoServer {
 	}
     }
 
-    public Vector<EchoClient> getClients() {
-	return clients;
-    }
-
-    public void setClients(Vector<EchoClient> clients) {
-	this.clients = clients;
-    }
-
-    public Vector<Socket> getSockets() {
-	return sockets;
-    }
-
-    public void setSockets(Vector<Socket> sockets) {
-	this.sockets = sockets;
-    }
-
-    public Vector<PrintWriter> getStreams() {
-	return streams;
-    }
-
-    public void setStreams(Vector<PrintWriter> streams) {
-	this.streams = streams;
-    }
-
+    /**
+     * retourne la socket du serveur principale
+     * 
+     * @return : server socket
+     */
     public ServerSocket getServ() {
 	return serv;
     }
 
-    public void setServ(ServerSocket serv) {
-	this.serv = serv;
-    }
-
+    /**
+     * retourne la socket du serveur Jam
+     * 
+     * @return : server Jam socket
+     */
     public ServerSocket getServ2() {
 	return serv2;
     }
 
-    public void setServ2(ServerSocket serv2) {
-	this.serv2 = serv2;
-    }
-
-    public Socket getClient() {
-	return client;
-    }
-
-    public void setClient(Socket client) {
-	this.client = client;
-    }
-
+    /**
+     * retourne le nombre maximal de clients sur une session
+     * 
+     * @return : capacity
+     */
     public int getCapacity() {
 	return capacity;
     }
 
-    public void setCapacity(int capacity) {
-	this.capacity = capacity;
-    }
-
+    /**
+     * retourne le nombre de clients connectes
+     * 
+     * @return : nbConnectedClients
+     */
     public int getNbConnectedClients() {
 	return nbConnectedClients;
     }
 
-    public void setNbConnectedClients(int nbConnectedClients) {
-	this.nbConnectedClients = nbConnectedClients;
-    }
-
+    /**
+     * retourne le nombre de Jam clients connectes
+     * 
+     * @return : nbConnectedJamClients
+     */
     public int getNbConnectedJamClients() {
 	return nbConnectedJamClients;
     }
 
-    public void setNbConnectedJamClients(int nbConnectedJamClients) {
-	this.nbConnectedJamClients = nbConnectedJamClients;
-    }
-
-    public int getNbWaitingSocks() {
-	return nbWaitingSocks;
-    }
-
+    /**
+     * modifier le nombre de clients en attente de connexion
+     * 
+     * @param nbWaitingSocks
+     *            : nouveau nombre de clients en attente de connexion
+     */
     public void setNbWaitingSocks(int nbWaitingSocks) {
 	this.nbWaitingSocks = nbWaitingSocks;
     }
 
-    public int getPort() {
-	return port;
-    }
-
-    public void setPort(int port) {
-	this.port = port;
-    }
-
+    /**
+     * le Style de la Jam session
+     * 
+     * @return : style
+     */
     public String getStyle() {
 	return style;
     }
 
+    /**
+     * modifier le style de la Jam session
+     * 
+     * @param style
+     *            : nouveau style
+     */
     public void setStyle(String style) {
 	this.style = style;
     }
 
+    /**
+     * le tempo de la Jam session
+     * 
+     * @return : tempo
+     */
     public String getTempo() {
 	return tempo;
     }
 
+    /**
+     * modifier le tempo de la Jam session
+     * 
+     * @param tempo
+     *            : nouveau tempo
+     */
     public void setTempo(String tempo) {
 	this.tempo = tempo;
     }
 
+    /**
+     * retourne le tick actuel
+     * 
+     * @return : tickActuel
+     */
     public int getTickActuel() {
 	return tickActuel;
     }
 
+    /**
+     * modifie le tick actuel
+     * 
+     * @param tickActuel
+     *            : nouveau tick actuel
+     */
     public void setTickActuel(int tickActuel) {
 	this.tickActuel = tickActuel;
     }
 
+    /**
+     * retourne la hashMap contenant les buffers audios
+     * 
+     * @return : hashBuffers
+     */
     public HashMap<Integer, ArrayList<byte[]>> getHashBuffers() {
 	return hashBuffers;
     }
 
-    public void setHashBuffers(HashMap<Integer, ArrayList<byte[]>> hashBuffers) {
-	this.hashBuffers = hashBuffers;
-    }
-
+    /**
+     * retourne la hashMap de verification du nombre des melanges pret a
+     * l'envois
+     * 
+     * @return : hashBuffersSend
+     */
     public HashMap<Integer, Integer> getHashBuffersSend() {
 	return hashBuffersSend;
     }
 
+    /**
+     * retourne l'element pointe par k dans la HashMap HashBuffersSend
+     * 
+     * @param k
+     *            : key
+     * @return : valeur de key dans la hashmap
+     */
     public Integer getInHashBuffersSend(Integer k) {
 	return hashBuffersSend.get(k);
     }
 
+    /**
+     * ajouter une valeur pointe par k dans la HashMap HashBuffersSend
+     * 
+     * @param k
+     *            : key
+     * @param v
+     *            : valeur
+     */
     public void putInHashBuffersSend(Integer k, Integer v) {
 	hashBuffersSend.put(k, v);
     }
 
-    public void setHashBuffersSend(HashMap<Integer, Integer> hashBuffersSend) {
-	this.hashBuffersSend = hashBuffersSend;
-    }
-
+    /**
+     * informe le type de la derniere connexion d'un client au serveur
+     * 
+     * @return : true si c'est une Jam connexion, false sinon
+     */
     public Boolean getIsJamConnexion() {
 	return isJamConnexion;
     }
 
+    /**
+     * modifier le type de la derniere connexion d'un client au serveur
+     * 
+     * @param isJamConnexion
+     *            : true si c'est le cas, false sinon
+     */
     public void setIsJamConnexion(Boolean isJamConnexion) {
 	this.isJamConnexion = isJamConnexion;
     }
 
+    /**
+     * retourne la taille d'un buffer audio dans cette session
+     * 
+     * @return : sizeBuff
+     */
     public int getSizeBuff() {
 	return sizeBuff;
-    }
-
-    public void setSizeBuff(int sizeBuff) {
-	this.sizeBuff = sizeBuff;
     }
 
 }

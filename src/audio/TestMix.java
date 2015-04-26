@@ -16,6 +16,9 @@ public class TestMix {
 	CopieTest();
     }
 
+    /**
+     * Dans cette methode on lit deux fichiers puis creons une copie d'eux
+     */
     @SuppressWarnings({ "rawtypes", "unchecked", "resource" })
     public static void CopieTest() {
 	try {
@@ -85,6 +88,9 @@ public class TestMix {
 	}
     }
 
+    /**
+     * On melange ici les deux fichiers crees par la methode precedente
+     */
     @SuppressWarnings({ "rawtypes", "unchecked", "resource" })
     public static void TestMelange() {
 	try {

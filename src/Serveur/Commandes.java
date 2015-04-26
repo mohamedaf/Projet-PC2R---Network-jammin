@@ -19,6 +19,11 @@ public class Commandes {
     /**
      * Signifie au musicien qui a demandee la connexion que celle-ci est accepte
      * sous le nom "userName"
+     * 
+     * @param out
+     *            : Buffer d'envois au client
+     * @param userName
+     *            : Nom du client connecte
      */
     public synchronized static void welcome(PrintWriter out, String userName) {
 	out.println("WELCOME/" + userName + "/");
@@ -28,6 +33,9 @@ public class Commandes {
     /**
      * Signifie au musicien que le serveur attend une connexion sur le port
      * audio
+     * 
+     * @param out
+     *            : Buffer d'envois au client
      */
     public static void audio_port(PrintWriter out) {
 	out.println("AUDIO_PORT/1234/");
@@ -36,6 +44,9 @@ public class Commandes {
 
     /**
      * Signifie que le canal audio est etabli
+     * 
+     * @param out
+     *            : Buffer d'envois au client
      */
     public static void audio_ok(PrintWriter out) {
 	out.println("AUDIO_OK/1234/");
@@ -44,6 +55,13 @@ public class Commandes {
 
     /**
      * Signifie a tous les clients la connexion de "userName"
+     * 
+     * @param s
+     *            : Serveur
+     * @param userName
+     *            : Nom du client connecte
+     * @param out
+     *            : Buffer d'envois au client
      */
     public static void connected(EchoServer s, String userName, PrintWriter out) {
 	s.writeAllButMe("CONNECTED/" + userName + "/", out);
@@ -51,6 +69,13 @@ public class Commandes {
 
     /**
      * Signifie a tous les clients le depart de "userName"
+     * 
+     * @param s
+     *            : Serveur
+     * @param userName
+     *            : Nom du client connecte
+     * @param out
+     *            : Buffer d'envois au client
      */
     public static void exited(EchoServer s, String userName, PrintWriter out) {
 	s.writeAllButMe("EXITED/" + userName + "/", out);
@@ -62,6 +87,9 @@ public class Commandes {
 
     /**
      * Signale au client que la session est vide
+     * 
+     * @param out
+     *            : Buffer d'envois au client
      */
     public static void empty_session(PrintWriter out) {
 	out.println("EMPTY_SESSION/");
@@ -70,6 +98,15 @@ public class Commandes {
 
     /**
      * Signale au client les parameetres de la jam
+     * 
+     * @param out
+     *            : Buffer d'envois au client
+     * @param style
+     *            : style de la Jam session
+     * @param tempo
+     *            : tempo de la Jam session
+     * @param nbMus
+     *            : Nombre de musiciens connectes a la Jam session
      */
     public static void current_session(PrintWriter out, String style,
 	    String tempo, int nbMus) {
@@ -79,7 +116,10 @@ public class Commandes {
     }
 
     /**
-     * Signale la bonne re�?ception des parametres
+     * Signale la bonne reception des parametres
+     * 
+     * @param out
+     *            : Buffer d'envois au client
      */
     public static void ack_opts(PrintWriter out) {
 	out.println("ACK_OPTS/");
@@ -88,6 +128,9 @@ public class Commandes {
 
     /**
      * Signale au client que la session est plein
+     * 
+     * @param out
+     *            : Buffer d'envois au client
      */
     public static void full_session(PrintWriter out) {
 	out.println("FULL_SESSION/");
@@ -100,6 +143,9 @@ public class Commandes {
 
     /**
      * Bonne reception du buffer
+     * 
+     * @param out
+     *            : Buffer d'envois au client
      */
     public static void audio_okk(PrintWriter out) {
 	out.println("AUDIO_OK/");
@@ -107,7 +153,10 @@ public class Commandes {
     }
 
     /**
-     * Problème de re�?ception
+     * Problème de reception
+     * 
+     * @param out
+     *            : Buffer d'envois au client
      */
     public static void audio_ko(PrintWriter out) {
 	out.println("AUDIO_KO/");
@@ -116,6 +165,11 @@ public class Commandes {
 
     /**
      * Message au nouveau client indiquant la dernière valeur de tick envoyee
+     * 
+     * @param out
+     *            : Buffer d'envois au client
+     * @param tick
+     *            : tick actuel du serveur
      */
     public static void audio_sync(PrintWriter out, int tick) {
 	out.println("AUDIO_SYNC/" + tick + "/");
@@ -124,17 +178,14 @@ public class Commandes {
 
     /**
      * Buffer contenant le melange global des autres musiciens
+     * 
+     * @param out
+     *            : Buffer d'envois au client
+     * @param buffer
+     *            : buffer audio du melange
      */
     public static void audio_mix(PrintWriter out, String buffer) {
 	out.println("AUDIO_MIX/" + buffer + "/");
-	out.flush();
-    }
-
-    /**
-     * Informer le nouveau client connecte du tick actuel
-     */
-    public static void actual_tick(PrintWriter out, int tick) {
-	out.println("AUDIO_SYNC/" + tick + "/");
 	out.flush();
     }
 

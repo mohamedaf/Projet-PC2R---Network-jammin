@@ -14,6 +14,16 @@ public class SendMixThread extends Thread {
     private PrintWriter out;
     private Integer tick;
 
+    /**
+     * Constructeur
+     * 
+     * @param clj
+     *            : Jam client
+     * @param out
+     *            : Buffer de sortie vers le client
+     * @param tick
+     *            : tick correspondant au moment de l'envois
+     */
     public SendMixThread(EchoJamClient clj, PrintWriter out, Integer tick) {
 	this.clj = clj;
 	this.out = out;
@@ -23,6 +33,9 @@ public class SendMixThread extends Thread {
     @Override
     public void run() {
 	try {
+	    /**
+	     * attente d'un ajout d'un buffer a la file d'attente du Jam client
+	     */
 	    synchronized (clj) {
 		clj.wait();
 	    }

@@ -10,7 +10,8 @@ import java.net.Socket;
  * 
  * @author Mohamed AMIN
  * 
- *         Classe de test simulant un client envoyant un buffer
+ *         Classe de test simulant un client envoyant un buffer et le
+ *         receptionnant par la suite
  */
 public class ClientTest extends Thread {
 

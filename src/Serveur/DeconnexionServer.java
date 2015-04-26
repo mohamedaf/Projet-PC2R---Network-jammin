@@ -16,18 +16,38 @@ public class DeconnexionServer extends Thread {
 
     private EchoServer server;
 
+    /**
+     * Constructeur
+     * 
+     * @param server
+     *            : instance du serveur
+     */
     public DeconnexionServer(EchoServer server) {
 	this.server = server;
     }
 
+    /**
+     * 
+     * @return serveur
+     */
     public EchoServer getServer() {
 	return server;
     }
 
+    /**
+     * changer le serveur
+     * 
+     * @param server
+     *            : nouveau serveur
+     */
     public void setServer(EchoServer server) {
 	this.server = server;
     }
 
+    /**
+     * Thread attendant que "exit" soit tapé pour fermer la socket proprement et
+     * donc deconnecter les serveurs (protocole et Jam)
+     */
     @Override
     public void run() {
 	BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
