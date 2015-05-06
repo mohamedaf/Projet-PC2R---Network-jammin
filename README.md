@@ -1,9 +1,11 @@
-# Projet-PC2R---Network-jammin
+PC2R - Jam Session
+Mohamed-Amin AFFES, Hassan KOBROSLI
 
+Le programme n'est pas fonctionnel :
+côté client, la capture, l'envoi et la réception de buffers
+se fait correctement mais le serveur ne reçoit pas immédiatement
+les données, ce qui crée une très grande latence.
 
-Ce projet (en cours de rÃ©alisation) reprÃ©sente une application permettant dâ€™effectuer 
-des jams sessions en temps-rÃ©el Ã  partirs de flux audios reÃ§us par diffÃ©rentes personnes
-se trouvant a des endroits diffÃ©rents le but Ã©tant de faire un mix des donnÃ©es audios
-et de l'envoyer Ã  ces personnes.
+Les programmes sont tout de même exécutables conformément au sujet.
 
-Pour plus de dÃ©tails veuillez consulter le sujet de l'Ã©nnoncÃ©.
+Les exécutables sont situés dans le dossier /users/Etu3/3001993/PC2R
