@@ -1,11 +1,7 @@
-PC2R - Jam Session
-Mohamed-Amin AFFES, Hassan KOBROSLI
+# PC2R - Jam Session
+RÃ©aliser une Jam Session musicale
+Lien vers l'Ã©nnoncÃ© du projet :
+https://www-apr.lip6.fr/~chaillou/Public/enseignement/2014-2015/pc2r/public/projet-v2.pdf
 
-Le programme n'est pas fonctionnel :
-côté client, la capture, l'envoi et la réception de buffers
-se fait correctement mais le serveur ne reçoit pas immédiatement
-les données, ce qui crée une très grande latence.
+Mohamed AFFES, Hassan KOBROSLI
 
-Les programmes sont tout de même exécutables conformément au sujet.
-
-Les exécutables sont situés dans le dossier /users/Etu3/3001993/PC2R
